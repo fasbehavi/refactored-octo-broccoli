@@ -1,36 +1,109 @@
-# This is a basic workflow to help you get started with Actions
-
 name: CI
+on: push
 
-# Controls when the workflow will run
-on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
+  release-classification:
+    name: Classify release PR or version-only main commit
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
+      - run: echo "Classifying release..."
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: lscpu
+  release-image-classification:
+    name: Verify reusable application image revision
+    needs: [release-classification]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Verifying reusable image..."
 
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+  release-mode:
+    name: Select CI execution mode
+    needs: [release-classification, release-image-classification]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Selecting execution mode..."
+
+  static-verification:
+    name: Static verification
+    needs: [release-mode]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Running static verification..."
+
+  external-package-contracts:
+    name: Verify external package contracts
+    needs: [release-mode]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Verifying contracts..."
+
+  tests:
+    name: Unit and story tests
+    needs: [release-mode]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Running tests..."
+
+  e2e:
+    name: E2E tests
+    needs: [release-mode]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Running E2E tests..."
+
+  build-image:
+    name: Build image (${{ matrix.image }})
+    needs: [release-mode]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        image: [api, client, provisioner-docker, provisioner-ec2, runner]
+    steps:
+      - run: echo "Building ${{ matrix.image }}..."
+
+  build-images:
+    name: Build images
+    needs: [release-mode, build-image]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Image build matrix completed."
+
+  publication-preflight:
+    name: Package publication preflight
+    needs: [release-mode]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Running publication preflight..."
+
+  publish-images:
+    name: Publish app image (${{ matrix.image }})
+    needs: [release-mode, static-verification, external-package-contracts, tests, e2e]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        image: [api, client, provisioner-docker, provisioner-ec2, runner]
+    steps:
+      - run: echo "Publishing ${{ matrix.image }}..."
+
+  publish-runner-image-candidate:
+    name: Publish runner image candidate (${{ matrix.architecture }})
+    needs: [release-mode, static-verification, external-package-contracts, tests, e2e]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        architecture: [amd64, arm64]
+    steps:
+      - run: echo "Publishing candidate for ${{ matrix.architecture }}..."
+
+  publish-application-release:
+    name: Publish application release
+    needs: [release-mode, publish-images]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Publishing application release..."
+
+  deploy-production:
+    name: Deploy production
+    needs: [release-mode, static-verification, external-package-contracts, tests, e2e]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Deploying to production..."
