@@ -1,80 +1,79 @@
-name: build
+name: "build"
 
-on:
-  pull_request:
+on: [pull_request]
 
 jobs:
   macos-brew:
-    name: macOS (brew)
+    name: "macOS (brew)"
     runs-on: macos-latest
     steps:
-      - name: Checkout repository
+      - name: "Checkout repository"
         uses: actions/checkout@v4
-      - name: Build placeholder
+      - name: "Build placeholder"
         run: echo "Insert macOS build steps here"
 
   windows-msys2:
-    name: Windows (MSYS2)
+    name: "Windows (MSYS2)"
     runs-on: windows-latest
     steps:
-      - name: Checkout repository
+      - name: "Checkout repository"
         uses: actions/checkout@v4
-      - name: Build placeholder
+      - name: "Build placeholder"
         run: echo "Insert Windows build steps here"
 
   arch-linux:
-    name: Arch Linux
+    name: "Arch Linux"
     runs-on: ubuntu-latest
-    container: archlinux:latest
+    container: "archlinux:latest"
     steps:
-      - name: Checkout repository
+      - name: "Checkout repository"
         uses: actions/checkout@v4
-      - name: Build placeholder
+      - name: "Build placeholder"
         run: echo "Insert Arch Linux build steps here"
 
   docker:
-    name: Docker
+    name: "Docker"
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: "Checkout repository"
         uses: actions/checkout@v4
-      - name: Build placeholder
+      - name: "Build placeholder"
         run: echo "Insert Docker build steps here"
 
   source-archive:
-    name: source archive
+    name: "source archive"
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: "Checkout repository"
         uses: actions/checkout@v4
-      - name: Build placeholder
+      - name: "Build placeholder"
         run: echo "Insert source archive steps here"
 
   build-linux:
-    name: ${{ matrix.os }}
+    name: "${{ matrix.os }}"
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         os: 
-          - Debian 11
-          - Ubuntu 22.04
+          - "Debian 11"
+          - "Ubuntu 22.04"
     steps:
-      - name: Checkout repository
+      - name: "Checkout repository"
         uses: actions/checkout@v4
-      - name: Build placeholder
+      - name: "Build placeholder"
         run: echo "Insert Linux build steps for ${{ matrix.os }} here"
 
   test-ubuntu:
-    name: ${{ matrix.os }}
+    name: "${{ matrix.os }}"
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         os: 
-          - Ubuntu 24.04 (tests)
+          - "Ubuntu 24.04 (tests)"
     steps:
-      - name: Checkout repository
+      - name: "Checkout repository"
         uses: actions/checkout@v4
-      - name: Test placeholder
+      - name: "Test placeholder"
         run: echo "Insert Ubuntu test steps for ${{ matrix.os }} here"
