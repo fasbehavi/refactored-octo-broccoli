@@ -1,36 +1,51 @@
-# This is a basic workflow to help you get started with Actions
+name: build
+on: pull_request
 
-name: CI
-
-# Controls when the workflow will run
-on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
+  macos-brew:
+    name: macOS (brew)
+    runs-on: macos-latest
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
+      - run: echo "Running macOS (brew)..."
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
+  windows-msys2:
+    name: Windows (MSYS2)
+    runs-on: windows-latest
+    steps:
+      - run: echo "Running Windows (MSYS2)..."
 
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+  arch-linux:
+    name: Arch Linux
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Running Arch Linux..."
+
+  docker:
+    name: Docker
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Running Docker..."
+
+  source-archive:
+    name: source archive
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Running source archive..."
+
+  build-linux:
+    name: ${{ matrix.os }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: ['Debian 11', 'Ubuntu 22.04']
+    steps:
+      - run: echo "Building on ${{ matrix.os }}..."
+
+  test-ubuntu:
+    name: ${{ matrix.os }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: ['Ubuntu 24.04 (tests)']
+    steps:
+      - run: echo "Testing on ${{ matrix.os }}..."
