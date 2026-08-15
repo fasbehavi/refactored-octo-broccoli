@@ -1,109 +1,27 @@
-name: CI
-on: push
+name: build.yml
+on: [pull_request]
 
 jobs:
-  release-classification:
-    name: Classify release PR or version-only main commit
-    runs-on: ubuntu-latest
+  macos-brew:
+    name: macOS (brew)
+    runs-on: macos-latest
     steps:
-      - run: echo "Classifying release..."
+      # ... macOS build steps ...
 
-  release-image-classification:
-    name: Verify reusable application image revision
-    needs: [release-classification]
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Verifying reusable image..."
-
-  release-mode:
-    name: Select CI execution mode
-    needs: [release-classification, release-image-classification]
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Selecting execution mode..."
-
-  static-verification:
-    name: Static verification
-    needs: [release-mode]
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Running static verification..."
-
-  external-package-contracts:
-    name: Verify external package contracts
-    needs: [release-mode]
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Verifying contracts..."
-
-  tests:
-    name: Unit and story tests
-    needs: [release-mode]
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Running tests..."
-
-  e2e:
-    name: E2E tests
-    needs: [release-mode]
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Running E2E tests..."
-
-  build-image:
-    name: Build image (${{ matrix.image }})
-    needs: [release-mode]
-    runs-on: ubuntu-latest
+  build-linux:
     strategy:
       matrix:
-        image: [api, client, provisioner-docker, provisioner-ec2, runner]
+        os: [debian-11, ubuntu-22.04]
+    name: ${{ matrix.os }}
+    runs-on: ubuntu-latest # (or a custom runner)
     steps:
-      - run: echo "Building ${{ matrix.image }}..."
-
-  build-images:
-    name: Build images
-    needs: [release-mode, build-image]
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Image build matrix completed."
-
-  publication-preflight:
-    name: Package publication preflight
-    needs: [release-mode]
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Running publication preflight..."
-
-  publish-images:
-    name: Publish app image (${{ matrix.image }})
-    needs: [release-mode, static-verification, external-package-contracts, tests, e2e]
-    runs-on: ubuntu-latest
+      # ... Linux build steps ...
+      
+  test-ubuntu:
     strategy:
       matrix:
-        image: [api, client, provisioner-docker, provisioner-ec2, runner]
+        os: [ubuntu-24.04]
+    name: Ubuntu 24.04 (tests)
+    runs-on: ubuntu-24.04
     steps:
-      - run: echo "Publishing ${{ matrix.image }}..."
-
-  publish-runner-image-candidate:
-    name: Publish runner image candidate (${{ matrix.architecture }})
-    needs: [release-mode, static-verification, external-package-contracts, tests, e2e]
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        architecture: [amd64, arm64]
-    steps:
-      - run: echo "Publishing candidate for ${{ matrix.architecture }}..."
-
-  publish-application-release:
-    name: Publish application release
-    needs: [release-mode, publish-images]
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Publishing application release..."
-
-  deploy-production:
-    name: Deploy production
-    needs: [release-mode, static-verification, external-package-contracts, tests, e2e]
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Deploying to production..."
+      # ... Test execution steps ...
